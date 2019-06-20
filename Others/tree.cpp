@@ -13,49 +13,48 @@ template <class T>
 class Tree
 {
 public:
-  shared_ptr<Tree> left;
-  shared_ptr<Tree> right;
+  unique_ptr<Tree> left;
+  unique_ptr<Tree> right;
   T value;
 
   Tree() : left(nullptr), right(nullptr), value(){};
 };
 
-Tree<int> T;
+unique_ptr<Tree<int>> P;
 
-void init_sub(shared_ptr<Tree<int>> pt, int &N)
+void init_sub(unique_ptr<Tree<int>> &pt, int &N)
 {
   int t;
   t = pt->value * 2;
   if (t <= N)
   {
-    pt->left = shared_ptr<Tree<int>>{new Tree<int>};
+    pt->left = unique_ptr<Tree<int>>{new Tree<int>};
     pt->left->value = t;
     init_sub(pt->left, N);
   }
   t = pt->value * 2 + 1;
   if (t <= N)
   {
-    pt->right = shared_ptr<Tree<int>>{new Tree<int>};
+    pt->right = unique_ptr<Tree<int>>{new Tree<int>};
     pt->right->value = t;
     init_sub(pt->right, N);
   }
 }
 
-Tree<int> init(int N)
+void init(int N)
 {
   if (N < 1)
   {
     exit(1);
   }
-  shared_ptr<Tree<int>> pt{new Tree<int>};
-  pt->value = 1;
-  init_sub(pt, N);
-  return *pt;
+  P = unique_ptr<Tree<int>>{new Tree<int>};
+  P->value = 1;
+  init_sub(P, N);
 }
 
 bool search(int x)
 {
-  Tree<int> *pt = &T;
+  Tree<int> *pt = P.get();
   int ind = 0;
   for (auto i = 32 - 1; i >= 0; i--)
   {
@@ -86,7 +85,7 @@ bool search(int x)
 
 int maxi()
 {
-  Tree<int> *pt = &T;
+  Tree<int> *pt = P.get();
   int x = 3;
   while (pt->right)
   {
@@ -122,7 +121,7 @@ void test_size()
   cin >> n;
   for (auto i = 1; i < n; i++)
   {
-    T = init(i);
+    init(i);
     cout << "construct " << i << endl;
     cout << "maxi " << maxi() << endl;
     cout << "size " << size() << endl;
@@ -135,7 +134,7 @@ void test_search()
   cin >> n;
   for (auto i = 1; i < n; i++)
   {
-    T = init(i);
+    init(i);
     cout << "construct " << i << endl;
     if (search(i))
     {
